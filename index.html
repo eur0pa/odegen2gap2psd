@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ode Brew Grinder Gen 2 with Brew Burrs</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #grinderSettingContainer {
+            margin-bottom: 20px;
+        }
+
+        #grinderSettingLabel {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #grinderSettingSlider {
+            width: 100%;
+        }
+
+        #predictedSize {
+            color: red;
+        }
+
+        .selected-setting {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Ode Brew Grinder Gen 2 with Brew Burrs</h1>
+
+<label for="grinderSetting" id="grinderSettingLabel" class="grinder-setting-label">Select Grinder Setting:</label>
+<select id="grinderSetting" onchange="updateBurrGap()">
+    <option value="1">1</option> <option value="1.33">1 ⅓</option> <option value="1.67">1 ⅔</option>
+    <option value="2">2</option> <option value="2.33">2 ⅓</option> <option value="2.67">2 ⅔</option>
+    <option value="3">3</option> <option value="3.33">3 ⅓</option> <option value="3.67">3 ⅔</option>
+    <option value="4">4</option> <option value="4.33">4 ⅓</option> <option value="4.67">4 ⅔</option>
+    <option value="5">5</option> <option value="5.33">5 ⅓</option> <option value="5.67">5 ⅔</option>
+    <option value="6">6</option> <option value="6.33">6 ⅓</option> <option value="6.67">6 ⅔</option>
+    <option value="7">7</option> <option value="7.33">7 ⅓</option> <option value="7.67">7 ⅔</option>
+    <option value="8">8</option> <option value="8.33">8 ⅓</option> <option value="8.67">8 ⅔</option>
+    <option value="9">9</option> <option value="9.33">9 ⅓</option> <option value="9.67">9 ⅔</option>
+    <option value="10">10</option> <option value="10.33">10 ⅓</option> <option value="10.67">10 ⅔</option>
+    <option value="11">11</option>
+</select>
+
+<p>Predicted Particle Size: <span id="predictedSize"></span> microns</p>
+
+<div id="plotlyGraph"></div>
+
+<script>
+// Coefficients for the quadratic function
+const a = 0.001333291780623802;
+const b = 0.26612994927709177;
+const c = 130.74102306506077;
+
+// Quadratic function to predict particle size
+function predictParticleSize(x) {
+    return a * x**2 + b * x + c;
+}
+
+// Function to update the Plotly graph
+function updatePlotlyGraph(burrGapValues, particleSizeValues) {
+    var selectedSetting = parseFloat(document.getElementById('grinderSetting').value);
+
+    var knownValuesTrace = {
+        x: [400, 400, 425, 450, 475, 475, 500, 525, 525, 550, 550, 575, 600, 625, 800],
+        y: [442, 450, 490, 518, 540, 563, 604, 643, 660, 660, 686, 736, 770, 800, 1200],
+        mode: 'markers',
+        type: 'scatter',
+        name: 'Known',
+        marker: {
+            color: 'brightred',
+            size: 5
+        },
+    };
+
+    var trace = {
+        x: burrGapValues,
+        y: particleSizeValues,
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: 'Predicted',
+        line: {
+            color: 'lightgrey',
+        },
+        marker: {
+            color: 'brightblue',
+        },
+    };
+
+    var layout = {
+        autosize: true,
+        height: 720,
+        title: 'Quadratic Fit for Burr Gap vs. Particle Size',
+        xaxis: {title: 'Ode Gen 2 setting', tickvals: burrGapValues, ticktext: getGrinderSettings(burrGapValues), hoverformat: '.0f'},
+        yaxis: {title: 'Particle Size (microns)', hoverformat: '.0f'},
+    };
+
+    var data = [trace, knownValuesTrace];
+
+    Plotly.newPlot('plotlyGraph', data, layout);
+}
+
+// Function to update burr gap based on selected grinder setting
+function updateBurrGap() {
+    var grinderSetting = parseFloat(document.getElementById('grinderSetting').value);
+    var burrGap = 275 + (3 * (grinderSetting - 1) * 25);
+    var predictedSize = predictParticleSize(burrGap);
+
+    document.getElementById('predictedSize').textContent = predictedSize.toFixed(0);
+
+    updatePlotlyGraph(getBurrGapValues(), getParticleSizeValues());
+}
+
+// Function to get burr gap values for all grinder settings
+function getBurrGapValues() {
+    return Array.from({length: 31}, (_, i) => 275 + i * 25);
+}
+
+// Function to get particle size values for all grinder settings
+function getParticleSizeValues() {
+    return getBurrGapValues().map(predictParticleSize);
+}
+
+// Function to get grinder setting labels for tick text using fractions
+function getGrinderSettings(burrGapValues) {
+    return burrGapValues.map(gap => {
+        const setting = 1 + (gap - 275) / 75;
+      const fraction = (setting % 1 === 0) ? '' : (setting % 1 > 0.34) ? '⅔' : '⅓';
+        return Math.floor(setting) + ' ' + fraction;
+    });
+}
+
+updatePlotlyGraph(getBurrGapValues(), getParticleSizeValues());
+
+</script>
+
+</body>
+</html>
