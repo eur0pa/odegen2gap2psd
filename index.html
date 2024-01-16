@@ -100,16 +100,17 @@ function updatePlotlyGraph(burrGapValues, particleSizeValues) {
 
     var layout = {
         autosize: true,
-        height: 720,
-        legend: {x: 1, y: 0, xanchor: 'right'},
+        legend: {x: 1, y: 0.5, xanchor: 'right'},
         title: 'Quadratic Fit for Burr Gap vs. Particle Size',
         xaxis: {title: 'Ode Gen 2 setting', tickvals: burrGapValues, ticktext: getGrinderSettings(burrGapValues), hoverformat: '.0f'},
         yaxis: {title: 'Particle Size (microns)', hoverformat: '.0f'},
     };
 
+    var config = {responsive: true};
+
     var data = [trace, knownValuesTrace];
 
-    Plotly.newPlot('plotlyGraph', data, layout);
+    Plotly.newPlot('plotlyGraph', data, layout, config);
 }
 
 // Function to update burr gap based on selected grinder setting
