@@ -100,7 +100,7 @@ function updatePlotlyGraph(burrGapValues, particleSizeValues) {
 
     var layout = {
         autosize: true,
-        legend: {x: 1, y: 0.5, xanchor: 'right'},
+        legend: {x: 0, y: 1, xanchor: 'left'},
         title: 'Quadratic Fit for Burr Gap vs. Particle Size',
         xaxis: {title: 'Ode Gen 2 setting', tickvals: burrGapValues, ticktext: getGrinderSettings(burrGapValues), hoverformat: '.0f'},
         yaxis: {title: 'Particle Size (microns)', hoverformat: '.0f'},
