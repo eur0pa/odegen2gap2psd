@@ -53,6 +53,7 @@
     <option value="11">11</option>
 </select>
 
+<p>Actual burr gap: <span id="burrGap"></span> microns</p>
 <p>Predicted Particle Size: <span id="predictedSize"></span> microns</p>
 
 <div id="plotlyGraph"></div>
@@ -119,6 +120,7 @@ function updateBurrGap() {
     var burrGap = 275 + (3 * (grinderSetting - 1) * 25);
     var predictedSize = predictParticleSize(burrGap);
 
+    document.getElementById('burrGap').textContent = burrGap.toFixed(0);
     document.getElementById('predictedSize').textContent = predictedSize.toFixed(0);
 
     updatePlotlyGraph(getBurrGapValues(), getParticleSizeValues());
